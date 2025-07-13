@@ -1,13 +1,223 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>室內風格測驗 | Guigui</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>室內設計風格測驗</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to right, #f7f1e3, #f0ece2);
+      min-height: 100vh;
+      color: #8b7355;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .start-btn, .nav-btn, .restart-btn {
+      display: block;
+      margin: 20px auto;
+      background-color: #a1866f;
+      color: white;
+      padding: 14px 26px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1.2em;
+    }
+
+    .quiz-container, .result-screen {
+      display: none;
+      padding: 32px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    .option {
+      background-color: #eee3d0;
+      border: 1px solid #d1c0a8;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .option:hover {
+      background-color: #e3d3b5;
+    }
+
+    .result-image {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 20px auto;
+      border-radius: 12px;
+    }
+
+    /* 手機響應式設計 */
+    @media (max-width: 768px) {
+      .container {
+        padding: 12px;
+      }
+      .start-btn, .nav-btn, .restart-btn {
+        font-size: 1em;
+        padding: 12px 18px;
+      }
+      .option {
+        font-size: 0.95em;
+        padding: 12px;
+      }
+      .result-description {
+        font-size: 1em;
+      }
+    }
+  </style>
 </head>
-<body style="font-family: sans-serif; text-align: center; padding: 3em;">
-  <h1>🎨 5 種風格一次看懂｜你喜歡哪一種？</h1>
-  <p>這是 Guigui 設計的室內風格測驗（HTML 範例）。</p>
-  <p>完整版即將上線，可搭配 Typeform 或互動程式設計！</p>
+<body>
+  <div class="container">
+    <div class="welcome-screen" id="welcomeScreen">
+      <h1>找出你的室內設計風格</h1>
+      <button class="start-btn" id="startBtn">開始測驗</button>
+    </div>
+
+    <div class="quiz-container" id="quizContainer">
+      <div id="questionContainer">
+        <h3 id="questionText"></h3>
+        <div id="options"></div>
+      </div>
+    </div>
+
+    <div class="result-screen" id="resultScreen">
+      <h2 class="result-title" id="resultTitle"></h2>
+      <img id="resultImg" class="result-image" src="" alt="風格圖片">
+      <div class="result-description" id="resultDescription"></div>
+      <button class="restart-btn" id="restartBtn">重新測驗</button>
+    </div>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const welcomeScreen = document.getElementById("welcomeScreen");
+    const quizContainer = document.getElementById("quizContainer");
+    const resultScreen = document.getElementById("resultScreen");
+    const questionText = document.getElementById("questionText");
+    const optionsContainer = document.getElementById("options");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultDescription = document.getElementById("resultDescription");
+    const resultImg = document.getElementById("resultImg");
+
+    const questions = [
+      {
+        question: "你最喜歡的配色是？",
+        options: [
+          { text: "簡約黑白灰", style: "現代風" },
+          { text: "原木與米色", style: "日系無印風" },
+          { text: "復古磚紅與綠", style: "中古奶油風" },
+          { text: "鮮豔對比色", style: "包浩斯風" }
+        ]
+      },
+      {
+        question: "你理想中的居家氛圍？",
+        options: [
+          { text: "明亮俐落，功能至上", style: "現代風" },
+          { text: "溫暖柔和，療癒舒適", style: "日系無印風" },
+          { text: "復古有故事感", style: "中古奶油風" },
+          { text: "大膽創意與趣味", style: "包浩斯風" }
+        ]
+      }
+    ];
+
+    const styles = {
+      "現代風": {
+        name: "現代風 Modern",
+        description: "你喜歡簡潔、功能性強的設計風格，強調線條與材質，打造俐落高效的空間。",
+        image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+      },
+      "日系無印風": {
+        name: "日系無印風 MUJI",
+        description: "你喜歡自然簡樸的生活方式，追求舒適與實用的完美平衡。",
+        image: "https://images.unsplash.com/photo-1618221195710-dd6b9d7a36e1"
+      },
+      "中古奶油風": {
+        name: "中古奶油風 Vintage Cream",
+        description: "你喜歡充滿懷舊氣息的設計，融合了奶油色系與復古家具。",
+        image: "https://images.unsplash.com/photo-1635776061253-d042d4f66806"
+      },
+      "包浩斯風": {
+        name: "包浩斯風 Bauhaus",
+        description: "你鐘愛功能與美學的完美結合，喜歡大膽色塊與幾何造型。",
+        image: "https://images.unsplash.com/photo-1601933470928-c132c71b2b1d"
+      }
+    };
+
+    let currentQuestion = 0;
+    const answers = [];
+
+    startBtn.addEventListener("click", () => {
+      welcomeScreen.style.display = "none";
+      quizContainer.style.display = "block";
+      showQuestion();
+    });
+
+    restartBtn.addEventListener("click", () => {
+      location.reload();
+    });
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      questionText.textContent = q.question;
+      optionsContainer.innerHTML = "";
+
+      q.options.forEach((opt) => {
+        const btn = document.createElement("div");
+        btn.classList.add("option");
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => {
+          answers.push(opt.style);
+          currentQuestion++;
+          if (currentQuestion < questions.length) {
+            showQuestion();
+          } else {
+            showResult();
+          }
+        });
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function showResult() {
+      quizContainer.style.display = "none";
+      resultScreen.style.display = "block";
+      const count = {};
+      answers.forEach((a) => (count[a] = (count[a] || 0) + 1));
+      const resultStyle = Object.keys(count).reduce((a, b) => count[a] > count[b] ? a : b);
+      const styleInfo = styles[resultStyle];
+
+      resultTitle.textContent = styleInfo.name;
+      resultDescription.textContent = styleInfo.description;
+      resultImg.src = styleInfo.image;
+      resultImg.alt = styleInfo.name;
+    }
+  </script>
 </body>
 </html>
